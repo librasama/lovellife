@@ -1,6 +1,7 @@
 package com.aucompany.ll;
 
-import java.util.ArrayList;
+import com.aucompany.ll.test.TestSuit;
+
 import java.util.Date;
 import java.util.List;
 
@@ -9,22 +10,41 @@ import java.util.List;
  * 曲子
  */
 public class Tune implements Runnable {
-    PlayerData playerData;        //玩家数据
-    int minimumBeat = 20;       //最小节拍
-    int lastTime;               //持续时间
-    int id;                     //乐曲id
-    long startTimestamp;        //开始时间戳
+    public PlayerData playerData;        //玩家数据
+    public int judgeInterval = 20;       //最小判定周期
+    public int lastTime;                 //持续时间
+    int hits;                           //总击打数
+    public int id;                      //乐曲id
+    public long animateTime;                   //动画播放的时间
+    //判定时间偏差值（ms）
+    long badOffset = 500;
+    long goodOffset = 300;
+    long greatOffset = 200;
+    long perfectOffset = 100;
+    public long startTimestamp;        //开始时间戳
+    public int currentSecond;          //当前播放秒数
+    List<Track> tracks;                 //音轨们
 
-    List<Track> tracks = findTracks(id);
+
+    public void initTuneAndTracks(int id) {
+        tracks = findTracks(id);
+        for(Track t : tracks) {
+            t.animateTime = animateTime;
+            t.delayTime = badOffset;
+            for(Beat b : t.getBeats()) {
+                hits++;
+            }
+        }
+    }
     public void run() {
         playMusic();
         do {
-            try{Thread.sleep(minimumBeat);} catch (Exception e) {System.err.println(e);}
+            try{Thread.sleep(judgeInterval);} catch (Exception e) {System.err.println(e);}
             for(Track track : tracks) {
                 track.doTrackWork(startTimestamp);
                 Beat b = track.curBeat.peek();
                 if(b != null && (b.hitlevel != HitLevel.None)) {
-                    System.out.print("审判！！！！" );
+                    System.out.print("！！！判定！！！" );
                     // 结束滑行动画
                     removeBeatCircle();
                     evaluateHit(b);
@@ -42,32 +62,24 @@ public class Tune implements Runnable {
     }
 
     /**
-     * 测试用
-     * @return
-     */
-    public static Tune forTest() {
-        Tune t = new Tune();
-        t.id = 1;
-        t.lastTime = 4000;//10秒
-        t.minimumBeat = 20;
-        return t;
-    }
-
-    /**
      * 寻找乐谱对应的音轨们
      */
-    public List<Track> findTracks(int id) {
+    private List<Track> findTracks(int id) {
         //TODO 真正查库表
-        List<Track>  list = new ArrayList<>();
-        list.add(Track.forTest());
-        System.out.println("找到id=" + id + "音轨们了~，共"+list.size()+"条音轨");
+        List<Track> list = TestSuit.getTrackList();
+        System.out.println("【Tune】找到id=" + id + "音轨们了~，共"+list.size()+"条音轨");
         return list;
     }
+
 
     //播放背景音乐
     public void playMusic(){
         //TODO
         System.out.println("开始播放音乐~");
+    }
+
+    public int getHits() {
+        return hits;
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.aucompany.ll;
 
+import com.aucompany.ll.test.TestSuit;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -11,14 +13,14 @@ public class Director {
 
     int level;                      //难度
     int id;                         //曲子id
-    boolean isRace = false;         //是否是竞赛
     boolean isPlay = false;         //正在播放
+    boolean isRace = false;         //是否是竞赛
     long pauseTimestamp;            //暂停时间戳
     PlayerData player;
     Song song;
     Tune tune;
-    boolean onScreenListener = true;    //监听屏幕输入
-
+    boolean onScreenListener = true;            //监听屏幕输入
+    EventHandler handler = new EventHandler();  //事件响应
     public Director(int songId) {
         this.id = songId;
     }
@@ -39,8 +41,8 @@ public class Director {
      */
     private void simulate() {
         GameScreen screen = new GameScreen(this);
-        screen.addEventListener("TouchIn", this, Director.class, "onScreenTouchIn");
-        screen.addEventListener("TouchOut", this, Director.class, "onScreenTouchIn");
+        screen.addEventListener("TouchIn", handler, EventHandler.class, "onScreenTouchIn");
+        screen.addEventListener("TouchOut", handler, EventHandler.class, "onScreenTouchIn");
         new Thread(new SimulatePlay(this)).start();
         new Thread(screen).start();
     }
@@ -53,31 +55,17 @@ public class Director {
         loadMask(); //加载过场--蒙版
         tune = loadTune(id);//加载歌曲
         tune.playerData = player;
-        cancleMask(); //撤销蒙版
-        isPlay = true;
         tune.startTimestamp = new Date().getTime();
+        tune.initTuneAndTracks(id);
+        cancleMask(); //撤销蒙版
         Thread song = new Thread(tune);//播放歌曲
-        Thread process = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(!tune.isEnd()) {
-                    try{
-                        //刷新时间条。每次都按时间计算，不能累加。有暂停的问题
-                        System.out.println("更新时间条中");
-                        Thread.sleep(500);
-                    } catch (Exception e) {
-                        System.err.println(e);
-                    }
-                }
-            }
-        });
-        //乐曲结束
+        Thread progressBar = new Thread(new ProgressBar(tune));
         song.start();
-        process.start();
+        progressBar.start();
         simulate();
         try {
             song.join();
-            process.join();
+            progressBar.join();
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -88,55 +76,15 @@ public class Director {
         //显示分数统计页面
     }
 
-    /**
-     * 屏幕点击事件
-     * param time
-     * param x
-     * param y
-     */
-    public void onScreenTouchIn(Map<String, Object> e) {
-        long time = new Long(String.valueOf(e.get("time")));
-        //获取点击到的音轨
-        Track track = getTrack(new Float(e.get("x").toString()), new Float(e.get("y").toString()));
-        if(track.curBeat != null && track.curBeat.peek() != null) {
-            //判断当前，是否在最前一个beat的范围守备内
-            track.curBeat.peek().tryHit(time);
-        }
-    }
-
-    /**
-     * 屏幕点击离开事件
-     */
-    public void onScreenTouchOut(Map<String, Object> e) {
-
-    }
-
-    /**
-     * 暂停按钮
-     */
-    public void onPauseBtnClick() {
-        if(isPlay) {
-            pauseTimestamp = new Date().getTime();
-            //按钮更换为play
-            //音乐暂停
-            //动画暂停
-        } else {
-            //恢复音乐
-            //恢复动画
-            //按钮更换为pause
-            tune.startTimestamp += new Date().getTime() - pauseTimestamp;
-        }
-    }
-
 
     //来一款测试用的
     public Tune loadTune(int id) {
-        return Tune.forTest();
+        return TestSuit.getTune();
     }
 
 
     protected Song loadSong(int id) {
-        System.out.println("loading Song whose id is "+id+"...");
+        System.out.println("加载歌曲信息： "+id+"...");
         return new Song();
     }
     protected PlayerData loadPlayerData() {
@@ -148,21 +96,6 @@ public class Director {
 
     protected void showSongInfo(Song song) {
 
-    }
-
-    /**
-     * 坐标获取最靠近的音轨
-     * @param x
-     * @param y
-     * @return
-     */
-    private Track getTrack(float x, float y) {
-        for(Track t : tune.tracks) {
-            if(t.playBtn.inScope(x, y)) {
-                return t;
-            }
-        }
-        return null;
     }
 
     private void loadBgScene(int level) {
@@ -188,4 +121,66 @@ public class Director {
         }
         System.out.println("loading Play button...");
     }
+
+    /**
+     * 事件处理中心
+     */
+    class EventHandler {
+        /**
+         * 屏幕点击事件
+         * param time
+         * param x
+         * param y
+         */
+        public void onScreenTouchIn(Map<String, Object> e) {
+            long time = new Long(String.valueOf(e.get("time")));
+            //获取点击到的音轨
+            Track track = getTrack(new Float(e.get("x").toString()), new Float(e.get("y").toString()));
+            if(track.curBeat != null && track.curBeat.peek() != null) {
+                //判断当前，是否在最前一个beat的范围守备内
+                track.curBeat.peek().tryHit(time);
+            }
+        }
+
+        /**
+         * 屏幕点击离开事件
+         */
+        public void onScreenTouchOut(Map<String, Object> e) {
+
+        }
+
+        /**
+         * 暂停按钮
+         */
+        public void onPauseBtnClick() {
+            if(isPlay) {
+                pauseTimestamp = new Date().getTime();
+                //按钮更换为play
+                //音乐暂停
+                //动画暂停
+            } else {
+                //恢复音乐
+                //恢复动画
+                //按钮更换为pause
+                tune.startTimestamp += new Date().getTime() - pauseTimestamp;
+            }
+        }
+
+        /**
+         * 坐标获取最靠近的音轨
+         * @param x
+         * @param y
+         * @return
+         */
+        private Track getTrack(float x, float y) {
+            for(Track t : tune.tracks) {
+                if(t.playBtn.inScope(x, y)) {
+                    return t;
+                }
+            }
+            return null;
+        }
+
+    }
 }
+

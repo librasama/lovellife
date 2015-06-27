@@ -13,4 +13,5 @@ public class Song {
     int BScore;
     int AScore ;
     int SScore ;
+
 }

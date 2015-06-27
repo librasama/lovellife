@@ -8,10 +8,14 @@ import java.util.Random;
  *  玩家按钮
  */
 public class PlaySinger {
-    int pos;    //顺序位置
+    public PlaySinger(Track track, float x, float y) {
+        this.track = track;
+        this.x = x;
+        this.y = y;
+    }
     float x;    //X坐标
     float y;    //Y坐标
-    float offsetRadius = 10; //偏差半径
+    float offsetRadius = 10; //点击位置偏差半径
     Track track; //音轨
     Skill skill; //技能
     PlayerStatus st;//玩家状态
@@ -23,14 +27,7 @@ public class PlaySinger {
         //更新血量条
         //更新体力条
     }
-    //离开
-    public void onTouchOut() {
-        //长按Beat
-        if(currBeat.isLastBeat()) {
-            //更新血量条
-            //更新体力条
-        }
-    }
+
     //轮询更新状态
     public void updateStatus() {
         tagSkill();

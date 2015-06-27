@@ -7,9 +7,13 @@ package com.aucompany.ll;
 public class Beat {
 
     public Beat(){}
-    public Beat(BeatType type, long rightTime){
+    public Beat(Tune tune, BeatType type, long rightTime){
         this.type = type;
         this.rightTime = rightTime;
+        this.badOffset = tune.badOffset;
+        this.goodOffset = tune.goodOffset;
+        this.greatOffset = tune.greatOffset;
+        this.perfectOffset = tune.perfectOffset;
     }
 
     BeatType type;         //类型
@@ -17,14 +21,11 @@ public class Beat {
     long rightTime;                         //相对乐轨的位置
     HitLevel hitlevel = HitLevel.None;     //打击结果
     long lastTime;         //持续时间
-
     boolean timeout = false; //超时
-
-    //时间偏差值（ms）
-    long badOffset = 1000;
-    long goodOffset = 500;
-    long greatOffset = 300;
-    long perfectOffset = 100;
+    long badOffset;
+    long goodOffset;
+    long greatOffset;
+    long perfectOffset;
 
     int loss;
     int bloodBuff;

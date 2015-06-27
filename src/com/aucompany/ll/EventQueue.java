@@ -11,7 +11,7 @@ import java.util.Queue;
 public class EventQueue {
 
     private static EventQueue instance;
-    private Queue<Event> eQueue;
+    private Queue<Event>  eQueue;
 
     private EventQueue() {
         eQueue = new ArrayDeque<>();
@@ -26,8 +26,8 @@ public class EventQueue {
      * 增加消息
      * @param e
      */
-    public void add(Event e) {
-        System.out.println("【事件中心】增加事件："+e.eventType + "；相关数据："+e.eventInfo.toString());
+    public synchronized void add(Event e) {
+        System.out.println("【事件中心】事件发生："+e.eventType + "；相关数据："+e.eventInfo.toString());
         eQueue.add(e);
     }
 
@@ -35,10 +35,10 @@ public class EventQueue {
      * 消费消息
      * @return
      */
-    public Event deQueue() {
+    public synchronized Event deQueue() {
         Event e = eQueue.poll();
         if(e!= null) {
-            System.out.println("【事件中心】事件被响应："+e.eventType + "；相关数据："+e.eventInfo.toString());
+//            System.out.println("【事件中心】事件被响应："+e.eventType + "；相关数据："+e.eventInfo.toString());
         }
         return e;
     }

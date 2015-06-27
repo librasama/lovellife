@@ -5,7 +5,7 @@ package com.aucompany.ll;
  * 玩家状态
  */
 public class PlayerStatus {
-    int combo;
+    int combo;      //连击统计
     int perfect;
     float time;
     int power;
