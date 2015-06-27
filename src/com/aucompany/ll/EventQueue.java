@@ -27,6 +27,7 @@ public class EventQueue {
      * @param e
      */
     public void add(Event e) {
+        System.out.println("【事件中心】增加事件："+e.eventType + "；相关数据："+e.eventInfo.toString());
         eQueue.add(e);
     }
 
@@ -35,7 +36,11 @@ public class EventQueue {
      * @return
      */
     public Event deQueue() {
-        return eQueue.poll();
+        Event e = eQueue.poll();
+        if(e!= null) {
+            System.out.println("【事件中心】事件被响应："+e.eventType + "；相关数据："+e.eventInfo.toString());
+        }
+        return e;
     }
 }
 

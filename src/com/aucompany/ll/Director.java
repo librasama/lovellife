@@ -39,8 +39,8 @@ public class Director {
      */
     private void simulate() {
         GameScreen screen = new GameScreen(this);
-        screen.addEventListener("TouchIn", this, Director.class, "onPauseBtnClick");
-        screen.addEventListener("TouchOut", this, Director.class, "onPauseBtnClick");
+        screen.addEventListener("TouchIn", this, Director.class, "onScreenTouchIn");
+        screen.addEventListener("TouchOut", this, Director.class, "onScreenTouchIn");
         new Thread(new SimulatePlay(this)).start();
         new Thread(screen).start();
     }
@@ -87,14 +87,18 @@ public class Director {
         //撤销演奏页面
         //显示分数统计页面
     }
+
     /**
      * 屏幕点击事件
+     * param time
+     * param x
+     * param y
      */
     public void onScreenTouchIn(Map<String, Object> e) {
         long time = new Long(String.valueOf(e.get("time")));
         //获取点击到的音轨
         Track track = getTrack(new Float(e.get("x").toString()), new Float(e.get("y").toString()));
-        if(track != null && track.curBeat.peek() != null) {
+        if(track.curBeat != null && track.curBeat.peek() != null) {
             //判断当前，是否在最前一个beat的范围守备内
             track.curBeat.peek().tryHit(time);
         }
@@ -103,7 +107,7 @@ public class Director {
     /**
      * 屏幕点击离开事件
      */
-    public void onScreenTouchOut() {
+    public void onScreenTouchOut(Map<String, Object> e) {
 
     }
 
@@ -153,6 +157,11 @@ public class Director {
      * @return
      */
     private Track getTrack(float x, float y) {
+        for(Track t : tune.tracks) {
+            if(t.playBtn.inScope(x, y)) {
+                return t;
+            }
+        }
         return null;
     }
 

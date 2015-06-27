@@ -7,44 +7,44 @@ import java.util.Map;
  */
 public enum HitLevel {
 
-    Miss, Bad, Good, Great, Perfect;
+    None, Miss, Bad, Good, Great, Perfect;
 
-    public static void getTips(int hit) {
+    public static void getTips(HitLevel hit) {
         switch (hit) {
-            case -1:
+            case Miss:
                 System.out.println("Miss!");
                 break;
-            case 1:
+            case Bad:
                 System.out.println("Bad!");
                 break;
-            case 2:
+            case Good:
                 System.out.println("Good!");
                 break;
-            case 3:
+            case Great:
                 System.out.println("Great!");
                 break;
-            case 4:
+            case Perfect:
                 System.out.println("Perfect!");
                 break;
         }
     }
 
-    public static int getScore(PlayerData playerData, int hitlevel) {
+    public static int getScore(PlayerData playerData, HitLevel hitlevel) {
         double rate = 1;
         switch (hitlevel) {
-            case -1:
+            case Miss:
                 rate = 0;
                 break;
-            case 1:
+            case Bad:
                 rate = 0.6;
                 break;
-            case 2:
+            case Good:
                 rate = 0.8;
                 break;
-            case 3:
+            case Great:
                 rate = 1;
                 break;
-            case 4:
+            case Perfect:
                 rate = 1.1;
                 break;
         }

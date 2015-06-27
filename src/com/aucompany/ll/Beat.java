@@ -14,8 +14,8 @@ public class Beat {
 
     BeatType type;         //类型
     long showTime;         //显示的时间
-    long rightTime;        //相对乐轨的位置
-    int hitlevel = -1;     //打击结果
+    long rightTime;                         //相对乐轨的位置
+    HitLevel hitlevel = HitLevel.None;     //打击结果
     long lastTime;         //持续时间
 
     boolean timeout = false; //超时
@@ -40,14 +40,15 @@ public class Beat {
      */
     public void tryHit(long hitTime) {
         long relOffset = hitTime-rightTime;
-        if(relOffset <= perfectOffset || relOffset >= 0-perfectOffset) {
-            hitlevel = 1;
-        } else if (relOffset <= greatOffset || relOffset >= 0-greatOffset) {
-            hitlevel = 2;
-        } else if (relOffset <= goodOffset || relOffset >= 0-goodOffset) {
-            hitlevel = 3;
-        } else if (relOffset <= badOffset || relOffset >= 0-badOffset) {
-            hitlevel = 4;
+        System.out.println("打击时间的偏差值："+relOffset);
+        if(relOffset <= perfectOffset && relOffset >= 0-perfectOffset) {
+            hitlevel = HitLevel.Perfect;
+        } else if (relOffset <= greatOffset && relOffset >= 0-greatOffset) {
+            hitlevel = HitLevel.Great;
+        } else if (relOffset <= goodOffset && relOffset >= 0-goodOffset) {
+            hitlevel = HitLevel.Good;
+        } else if (relOffset <= badOffset && relOffset >= 0-badOffset) {
+            hitlevel = HitLevel.Bad;
         }
     }
     /**

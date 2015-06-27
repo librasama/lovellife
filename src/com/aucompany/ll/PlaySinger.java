@@ -8,7 +8,10 @@ import java.util.Random;
  *  玩家按钮
  */
 public class PlaySinger {
-    int pos;//位置
+    int pos;    //顺序位置
+    float x;    //X坐标
+    float y;    //Y坐标
+    float offsetRadius = 10; //偏差半径
     Track track; //音轨
     Skill skill; //技能
     PlayerStatus st;//玩家状态
@@ -47,4 +50,15 @@ public class PlaySinger {
             onSkill = false;
         }
     }
+
+    /**
+     * 判断是否点击到
+     * @param touchX
+     * @param touchY
+     * @return
+     */
+    public boolean inScope(float touchX, float touchY) {
+        return Math.sqrt(Math.pow((touchX-x), 2)+Math.pow((touchY-y), 2)) <= offsetRadius;
+    }
+
 }

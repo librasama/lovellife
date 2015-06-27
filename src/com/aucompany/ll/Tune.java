@@ -23,7 +23,7 @@ public class Tune implements Runnable {
             for(Track track : tracks) {
                 track.doTrackWork(startTimestamp);
                 Beat b = track.curBeat.peek();
-                if(b != null && (b.timeout || b.hitlevel != -1)) {
+                if(b != null && (b.hitlevel != HitLevel.None)) {
                     System.out.print("审判！！！！" );
                     // 结束滑行动画
                     removeBeatCircle();
