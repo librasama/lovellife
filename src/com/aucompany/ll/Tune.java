@@ -21,9 +21,10 @@ public class Tune implements Runnable {
         do {
             try{Thread.sleep(minimumBeat);} catch (Exception e) {System.err.println(e);}
             for(Track track : tracks) {
-                track.doTrackWork();
+                track.doTrackWork(startTimestamp);
                 Beat b = track.curBeat.peek();
                 if(b != null && (b.timeout || b.hitlevel != -1)) {
+                    System.out.print("审判！！！！" );
                     // 结束滑行动画
                     removeBeatCircle();
                     evaluateHit(b);
@@ -47,7 +48,7 @@ public class Tune implements Runnable {
     public static Tune forTest() {
         Tune t = new Tune();
         t.id = 1;
-        t.lastTime = 10000;//10秒
+        t.lastTime = 4000;//10秒
         t.minimumBeat = 20;
         return t;
     }
@@ -85,13 +86,13 @@ public class Tune implements Runnable {
         HitLevel.getTips(beat.hitlevel);
         //增加Score
         int score = HitLevel.getScore(playerData, beat.hitlevel);
-        System.out.println("增加Score点数");
+        System.out.println("增加Score点数："+score);
         //体力减少
         //连击 Combo
     }
 
     public void linkedEvaluate() {
-        System.out.println("联合判定");
+        //System.out.println("联合判定");
     }
     /**
      * 结束滑行动画

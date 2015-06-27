@@ -12,11 +12,12 @@ public class Director {
     int level;                      //难度
     int id;                         //曲子id
     boolean isRace = false;         //是否是竞赛
-    boolean isPlay = false;          //正在播放
-    long pauseTimestamp;        //暂停时间戳
+    boolean isPlay = false;         //正在播放
+    long pauseTimestamp;            //暂停时间戳
     PlayerData player;
     Song song;
     Tune tune;
+    boolean onScreenListener = true;    //监听屏幕输入
 
     public Director(int songId) {
         this.id = songId;
@@ -31,6 +32,17 @@ public class Director {
         loadScoreBar(song);//加载分数条
         loadPowerBar(player);//加载体力条
         loadPlayBtn(isRace);//加载暂停按钮
+    }
+
+    /**
+     * 模拟界面
+     */
+    private void simulate() {
+        GameScreen screen = new GameScreen(this);
+        screen.addEventListener("TouchIn", this, Director.class, "onPauseBtnClick");
+        screen.addEventListener("TouchOut", this, Director.class, "onPauseBtnClick");
+        new Thread(new SimulatePlay(this)).start();
+        new Thread(screen).start();
     }
 
     /**
@@ -52,7 +64,7 @@ public class Director {
                     try{
                         //刷新时间条。每次都按时间计算，不能累加。有暂停的问题
                         System.out.println("更新时间条中");
-                        Thread.sleep(100);
+                        Thread.sleep(500);
                     } catch (Exception e) {
                         System.err.println(e);
                     }
@@ -62,12 +74,14 @@ public class Director {
         //乐曲结束
         song.start();
         process.start();
+        simulate();
         try {
             song.join();
             process.join();
         } catch (Exception e) {
             System.out.println(e);
         }
+        onScreenListener = false;
         System.out.println("父进程呵呵呵");
         //演奏成功失败蒙版
         //撤销演奏页面
@@ -76,10 +90,10 @@ public class Director {
     /**
      * 屏幕点击事件
      */
-    public void onScreenTouchIn(Map<String, Float> e) {
+    public void onScreenTouchIn(Map<String, Object> e) {
         long time = new Long(String.valueOf(e.get("time")));
         //获取点击到的音轨
-        Track track = getTrack(e.get("x"), e.get("y"));
+        Track track = getTrack(new Float(e.get("x").toString()), new Float(e.get("y").toString()));
         if(track != null && track.curBeat.peek() != null) {
             //判断当前，是否在最前一个beat的范围守备内
             track.curBeat.peek().tryHit(time);
