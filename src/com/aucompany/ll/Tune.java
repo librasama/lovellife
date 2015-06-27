@@ -9,32 +9,35 @@ import java.util.List;
  * 曲子
  */
 public class Tune implements Runnable {
+    PlayerData playerData;        //玩家数据
     int minimumBeat = 20;       //最小节拍
     int lastTime;               //持续时间
     int id;                     //乐曲id
     long startTimestamp;        //开始时间戳
-    long pauseTimestamp;        //暂停时间戳
+
     List<Track> tracks = findTracks(id);
     public void run() {
         playMusic();
         do {
-            //休眠一段时间sleep(); 20ms
+            try{Thread.sleep(minimumBeat);} catch (Exception e) {System.err.println(e);}
             for(Track track : tracks) {
                 track.doTrackWork();
-                Beat b = track.curBeat;
-                if(b.timeout || b.hitlevel != -1) {
+                Beat b = track.curBeat.peek();
+                if(b != null && (b.timeout || b.hitlevel != -1)) {
                     // 结束滑行动画
                     removeBeatCircle();
                     evaluateHit(b);
                     // 播放结果动画
                     hitResultAnimate();
+                    //释放乐符
+                    track.curBeat.poll();
                 }
             }
             //联合评价
             linkedEvaluate();
             //乐曲结束
-        } while(true);
-
+        } while(!isEnd());
+        System.out.println("音乐结束");
     }
 
     /**
@@ -45,7 +48,7 @@ public class Tune implements Runnable {
         Tune t = new Tune();
         t.id = 1;
         t.lastTime = 10000;//10秒
-        t.minimumBeat = 10;
+        t.minimumBeat = 20;
         return t;
     }
 
@@ -54,13 +57,10 @@ public class Tune implements Runnable {
      */
     public List<Track> findTracks(int id) {
         //TODO 真正查库表
-        if(id == 1) {
-            System.out.println("找到id="+id+"音轨们了~");
-            List<Track>  list = new ArrayList<>();
-            list.add(new Track());
-            return list;
-        }
-        return null;
+        List<Track>  list = new ArrayList<>();
+        list.add(Track.forTest());
+        System.out.println("找到id=" + id + "音轨们了~，共"+list.size()+"条音轨");
+        return list;
     }
 
     //播放背景音乐
@@ -69,12 +69,12 @@ public class Tune implements Runnable {
         System.out.println("开始播放音乐~");
     }
 
-    private void pause() {
-        pauseTimestamp = new Date().getTime();
-    }
-
-    private void play() {
-        startTimestamp += new Date().getTime() - pauseTimestamp;
+    /**
+     * 乐谱结束
+     * @return
+     */
+    public boolean isEnd(){
+        return new Date().getTime() > startTimestamp + lastTime;
     }
 
     /**
@@ -82,20 +82,16 @@ public class Tune implements Runnable {
      */
     protected void evaluateHit(Beat beat) {
         //等级判断
-        //Score增加
+        HitLevel.getTips(beat.hitlevel);
+        //增加Score
+        int score = HitLevel.getScore(playerData, beat.hitlevel);
+        System.out.println("增加Score点数");
         //体力减少
         //连击 Combo
     }
 
     public void linkedEvaluate() {
-
-    }
-    /**
-     * 打击等级
-     * @return
-     */
-    private int hitLevel(Beat curBeat) {
-        return 2;
+        System.out.println("联合判定");
     }
     /**
      * 结束滑行动画

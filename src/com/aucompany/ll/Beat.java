@@ -5,7 +5,15 @@ package com.aucompany.ll;
  * 节奏
  */
 public class Beat {
+
+    public Beat(){}
+    public Beat(BeatType type, long rightTime){
+        this.type = type;
+        this.rightTime = rightTime;
+    }
+
     BeatType type;         //类型
+    long showTime;         //显示的时间
     long rightTime;        //相对乐轨的位置
     int hitlevel = -1;     //打击结果
     long lastTime;         //持续时间

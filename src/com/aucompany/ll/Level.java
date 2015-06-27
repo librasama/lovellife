@@ -9,10 +9,10 @@ public enum Level {
     public float getLastTime(Tune tune, int l) {
         switch (l) {
             //查找设定
-            case Easy: return 3;
-            case Noraml: return 2;
-            case Hard: return new Float(1.5);
-            case Expert: return 1;
+            case 1: return 3;
+            case 2: return 2;
+            case 3: return new Float(1.5);
+            case 4: return 1;
         }
         return 2;
     }

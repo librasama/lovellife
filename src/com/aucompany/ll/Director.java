@@ -13,6 +13,7 @@ public class Director {
     int id;                         //曲子id
     boolean isRace = false;         //是否是竞赛
     boolean isPlay = false;          //正在播放
+    long pauseTimestamp;        //暂停时间戳
     PlayerData player;
     Song song;
     Tune tune;
@@ -33,15 +34,55 @@ public class Director {
     }
 
     /**
+     * 播放
+     */
+    public void play() {
+        showSongInfo(song);//显示乐曲基本信息
+        loadMask(); //加载过场--蒙版
+        tune = loadTune(id);//加载歌曲
+        tune.playerData = player;
+        cancleMask(); //撤销蒙版
+        isPlay = true;
+        tune.startTimestamp = new Date().getTime();
+        Thread song = new Thread(tune);//播放歌曲
+        Thread process = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(!tune.isEnd()) {
+                    try{
+                        //刷新时间条。每次都按时间计算，不能累加。有暂停的问题
+                        System.out.println("更新时间条中");
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        System.err.println(e);
+                    }
+                }
+            }
+        });
+        //乐曲结束
+        song.start();
+        process.start();
+        try {
+            song.join();
+            process.join();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        System.out.println("父进程呵呵呵");
+        //演奏成功失败蒙版
+        //撤销演奏页面
+        //显示分数统计页面
+    }
+    /**
      * 屏幕点击事件
      */
     public void onScreenTouchIn(Map<String, Float> e) {
         long time = new Long(String.valueOf(e.get("time")));
         //获取点击到的音轨
         Track track = getTrack(e.get("x"), e.get("y"));
-        if(track != null && track.curBeat != null) {
+        if(track != null && track.curBeat.peek() != null) {
             //判断当前，是否在最前一个beat的范围守备内
-            track.curBeat.tryHit(time);
+            track.curBeat.peek().tryHit(time);
         }
     }
 
@@ -52,68 +93,43 @@ public class Director {
 
     }
 
-    private void loadBgScene(int level) {
-
+    /**
+     * 暂停按钮
+     */
+    public void onPauseBtnClick() {
+        if(isPlay) {
+            pauseTimestamp = new Date().getTime();
+            //按钮更换为play
+            //音乐暂停
+            //动画暂停
+        } else {
+            //恢复音乐
+            //恢复动画
+            //按钮更换为pause
+            tune.startTimestamp += new Date().getTime() - pauseTimestamp;
+        }
     }
 
-    private void loadScoreBar(Song song) {
-
-    }
-    private void loadPowerBar(PlayerData player) {
-
-    }
-
-    private void loadMask() {
-
-    }
-    private void cancleMask(){
-
-    }
 
     //来一款测试用的
-    private Tune loadTune(int id) {
+    public Tune loadTune(int id) {
         return Tune.forTest();
     }
 
 
-    /**
-     * 播放
-     */
-    public void play() {
-        showSongInfo(song);//显示乐曲基本信息
-        loadMask(); //加载过场--蒙版
-        tune = loadTune(id);//加载歌曲
-        cancleMask(); //撤销蒙版
-        isPlay = true;
-        new Thread(tune).run();//播放歌曲
-        //乐曲结束
-        while(true) {
-            //刷新时间条
-            //this.sleep(1000);
-        }
-    }
-    public void loadPlayBtn(boolean isRace) {
-        if(isRace) {
-            //disable掉暂停按钮
-        }
-    }
-    //暂停按钮
-    public void onPauseBtnClick() {
-        if(isPlay == true) {
-
-        }
-    }
-
-    private Song loadSong(int id) {
+    protected Song loadSong(int id) {
+        System.out.println("loading Song whose id is "+id+"...");
         return new Song();
     }
-
-    private void showSongInfo(Song song) {}
-
-    private PlayerData loadPlayerData() {
+    protected PlayerData loadPlayerData() {
         PlayerData player = new PlayerData();
-
+        System.out.println("loading Player Data...");
+        player.hitScore = 300;
         return player;
+    }
+
+    protected void showSongInfo(Song song) {
+
     }
 
     /**
@@ -124,5 +140,29 @@ public class Director {
      */
     private Track getTrack(float x, float y) {
         return null;
+    }
+
+    private void loadBgScene(int level) {
+        System.out.println("loading Background Scene...");
+    }
+
+    private void loadScoreBar(Song song) {
+        System.out.println("loadingScoreBar...");
+    }
+    private void loadPowerBar(PlayerData player) {
+        System.out.println("loading Powerbar...");
+    }
+
+    private void loadMask() {
+        System.out.println("lloadMask...");
+    }
+    private void cancleMask(){
+        System.out.println("cancleMask...");
+    }
+    public void loadPlayBtn(boolean isRace) {
+        if(isRace) {
+            //disable掉暂停按钮
+        }
+        System.out.println("loading Play button...");
     }
 }
