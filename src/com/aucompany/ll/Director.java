@@ -72,8 +72,15 @@ public class Director {
         onScreenListener = false;
         System.out.println("父进程呵呵呵");
         //演奏成功失败蒙版
+        PlayerStatus status = tune.playerStatus;
+        if(status.hit < tune.hits) {
+            System.out.println("演奏失败~~~Niconiconi~");
+        } else {
+            System.out.println("演奏成功！！！Makimakima！");
+        }
         //撤销演奏页面
         //显示分数统计页面
+        System.out.println("结果发表："+status.toString());
     }
 
 

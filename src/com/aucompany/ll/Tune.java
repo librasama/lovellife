@@ -11,11 +11,12 @@ import java.util.List;
  */
 public class Tune implements Runnable {
     public PlayerData playerData;        //玩家数据
+    public PlayerStatus playerStatus;    //玩家状态
     public int judgeInterval = 20;       //最小判定周期
     public int lastTime;                 //持续时间
     int hits;                           //总击打数
     public int id;                      //乐曲id
-    public long animateTime;                   //动画播放的时间
+    public long animateTime;           //动画播放的时间
     //判定时间偏差值（ms）
     long badOffset = 500;
     long goodOffset = 300;
@@ -27,6 +28,7 @@ public class Tune implements Runnable {
 
 
     public void initTuneAndTracks(int id) {
+        playerStatus = new PlayerStatus(5);
         tracks = findTracks(id);
         for(Track t : tracks) {
             t.animateTime = animateTime;
@@ -56,7 +58,7 @@ public class Tune implements Runnable {
             }
             //联合评价
             linkedEvaluate();
-            //乐曲结束
+            //乐曲结束或者体力为0
         } while(!isEnd());
         System.out.println("音乐结束");
     }
@@ -87,7 +89,7 @@ public class Tune implements Runnable {
      * @return
      */
     public boolean isEnd(){
-        return new Date().getTime() > startTimestamp + lastTime;
+        return (new Date().getTime() > startTimestamp + lastTime) || (playerStatus.power < 0);
     }
 
     /**
@@ -95,12 +97,25 @@ public class Tune implements Runnable {
      */
     protected void evaluateHit(Beat beat) {
         //等级判断
-        HitLevel.getTips(beat.hitlevel);
+        HitLevel.getTips(playerStatus, beat.hitlevel);
         //增加Score
         int score = HitLevel.getScore(playerData, beat.hitlevel);
+        playerStatus.score += score;
         System.out.println("增加Score点数："+score);
-        //体力减少
-        //连击 Combo
+        //体力减少.TODO 联动判定
+        if(beat.type == BeatType.Star && (beat.hitlevel != HitLevel.Good || beat.hitlevel != HitLevel.Perfect)) {
+            playerStatus.power -= 2;
+            playerStatus.combo = 0;
+            playerStatus.perfect = 0;
+        }
+        if(beat.type == BeatType.Basic && (beat.hitlevel == HitLevel.Bad || beat.hitlevel == HitLevel.Miss)) {
+            playerStatus.power -= 1;
+            playerStatus.combo = 0;
+            playerStatus.perfect = 0;
+        }
+        if(beat.hitlevel == HitLevel.Perfect) {
+            playerStatus.perfect++;
+        }
     }
 
     public void linkedEvaluate() {

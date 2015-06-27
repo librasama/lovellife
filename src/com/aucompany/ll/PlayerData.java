@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class PlayerData {
     int hitScore;   //每一击的力度，从队员计算出来
-    int power;
-    List<PlaySinger> singers ;
+    int power;      //体力值
+    List<PlaySinger> singers ; //选手
+
 }

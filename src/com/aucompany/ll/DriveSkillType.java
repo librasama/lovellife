@@ -8,8 +8,8 @@ public enum  DriveSkillType {
     Inteval,Perfect, Combo;
     public static boolean drive(PlayerStatus st, Skill sk) {
         switch (sk.driveType) {
-            case Inteval:
-                return st.time >= sk.skillVal;
+//            case Inteval:
+//                return st.time >= sk.skillVal;
             case Perfect:
                 return st.perfect >= sk.skillVal;
             case Combo:

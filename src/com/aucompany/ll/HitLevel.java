@@ -9,21 +9,27 @@ public enum HitLevel {
 
     None, Miss, Bad, Good, Great, Perfect;
 
-    public static void getTips(HitLevel hit) {
+    public static void getTips(PlayerStatus status, HitLevel hit) {
+        status.hit++;
         switch (hit) {
             case Miss:
+                status.miss++;
                 System.out.println("Miss!");
                 break;
             case Bad:
+                status.bad++;
                 System.out.println("Bad!");
                 break;
             case Good:
+                status.good++;
                 System.out.println("Good!");
                 break;
             case Great:
+                status.great++;
                 System.out.println("Great!");
                 break;
             case Perfect:
+                status.perfect++;
                 System.out.println("Perfect!");
                 break;
         }
