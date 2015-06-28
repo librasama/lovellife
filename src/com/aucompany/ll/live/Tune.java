@@ -1,4 +1,4 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live;
 
 import com.aucompany.ll.test.TestSuit;
 
@@ -73,6 +73,9 @@ public class Tune implements Runnable {
         return list;
     }
 
+    public List<Track> getTracks() {
+        return tracks;
+    }
 
     //播放背景音乐
     public void playMusic(){
@@ -102,6 +105,8 @@ public class Tune implements Runnable {
         int score = HitLevel.getScore(playerData, beat.hitlevel);
         playerStatus.score += score;
         System.out.println("增加Score点数："+score);
+        //判定是否达到下一评级，是则更新评级条
+
         //体力减少.TODO 联动判定
         if(beat.type == BeatType.Star && (beat.hitlevel != HitLevel.Good || beat.hitlevel != HitLevel.Perfect)) {
             playerStatus.power -= 2;

@@ -1,10 +1,12 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live.graph;
+
+import com.aucompany.ll.live.Tune;
 
 import java.util.Date;
 
 /**
  * Created by zoe on 2015/6/27.
- * 时间进度条
+ * 进度条
  */
 public class ProgressBar implements Runnable {
 

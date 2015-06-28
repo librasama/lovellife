@@ -1,5 +1,7 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live;
 
+import com.aucompany.ll.live.graph.ProgressBar;
+import com.aucompany.ll.test.SimulatePlay;
 import com.aucompany.ll.test.TestSuit;
 
 import java.util.Date;
@@ -20,10 +22,11 @@ public class Director {
     Song song;
     Tune tune;
     boolean onScreenListener = true;            //监听屏幕输入
-    EventHandler handler = new EventHandler();  //事件响应
+    EventCenter handler = new EventCenter();  //事件响应
     public Director(int songId) {
         this.id = songId;
     }
+
     /**
      * 初始化
      */
@@ -40,9 +43,9 @@ public class Director {
      * 模拟界面
      */
     private void simulate() {
-        GameScreen screen = new GameScreen(this);
-        screen.addEventListener("TouchIn", handler, EventHandler.class, "onScreenTouchIn");
-        screen.addEventListener("TouchOut", handler, EventHandler.class, "onScreenTouchIn");
+        Stage screen = new Stage(this);
+        screen.addEventListener("TouchIn", handler, EventCenter.class, "onScreenTouchIn");
+        screen.addEventListener("TouchOut", handler, EventCenter.class, "onScreenTouchIn");
         new Thread(new SimulatePlay(this)).start();
         new Thread(screen).start();
     }
@@ -81,6 +84,7 @@ public class Director {
         //撤销演奏页面
         //显示分数统计页面
         System.out.println("结果发表："+status.toString());
+
     }
 
 
@@ -89,9 +93,12 @@ public class Director {
         return TestSuit.getTune();
     }
 
+    public Tune getTune() {
+        return tune;
+    }
 
     protected Song loadSong(int id) {
-        System.out.println("加载歌曲信息： "+id+"...");
+        System.out.println("加载歌曲信息： " + id + "...");
         return new Song();
     }
     protected PlayerData loadPlayerData() {
@@ -132,7 +139,7 @@ public class Director {
     /**
      * 事件处理中心
      */
-    class EventHandler {
+    class EventCenter {
         /**
          * 屏幕点击事件
          * param time

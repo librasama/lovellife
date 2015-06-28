@@ -1,4 +1,4 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live.event;
 
 import java.util.Map;
 
@@ -11,5 +11,13 @@ public class Event {
     public Event(String type,  Map<String, Object> info) {
         this.eventType = type;
         this.eventInfo = info;
+    }
+
+    public Map<String, Object> getEventInfo() {
+        return eventInfo;
+    }
+
+    public String getEventType() {
+        return eventType;
     }
 }

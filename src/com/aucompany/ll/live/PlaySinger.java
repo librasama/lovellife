@@ -1,4 +1,4 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live;
 
 import java.util.Date;
 import java.util.Random;
@@ -58,4 +58,11 @@ public class PlaySinger {
         return Math.sqrt(Math.pow((touchX-x), 2)+Math.pow((touchY-y), 2)) <= offsetRadius;
     }
 
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
 }

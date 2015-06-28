@@ -1,4 +1,11 @@
-package com.aucompany.ll;
+package com.aucompany.ll.test;
+
+import com.aucompany.ll.live.Beat;
+import com.aucompany.ll.live.Director;
+import com.aucompany.ll.live.Track;
+import com.aucompany.ll.live.Tune;
+import com.aucompany.ll.live.event.Event;
+import com.aucompany.ll.live.event.EventQueue;
 
 import java.util.*;
 
@@ -10,7 +17,7 @@ public class SimulatePlay implements Runnable{
 
     Tune tune;
     public SimulatePlay(Director director) {
-        this.tune = director.tune;
+        this.tune = director.getTune();
     }
 
     /**
@@ -29,14 +36,14 @@ public class SimulatePlay implements Runnable{
      */
     private void init() {
         System.out.println("++++++++++++++预定事件++++++++++++");
-        for(Track t : this.tune.tracks) {
-            System.out.println("++++++++++++++音轨"+t.pos+"++++++++++++");
+        for(Track t : this.tune.getTracks()) {
+            System.out.println("++++++++++++++音轨"+t.getPos()+"++++++++++++");
             List<Event> eventQueue = new ArrayList<Event>();
-            for(Beat b : t.beats) {
+            for(Beat b : t.getBeats()) {
                 Map<String, Object> map = new HashMap<>();
-                map.put("time", b.rightTime+new Random().nextInt(600));
-                map.put("x", t.playBtn.x);
-                map.put("y", t.playBtn.y);
+                map.put("time", b.getRightTime()+new Random().nextInt(600));
+                map.put("x", t.playBtn.getX());
+                map.put("y", t.playBtn.getY());
                 eventQueue.add(new Event("TouchIn", map));
                 System.out.print(map.get("time") + ",   ");
             }
@@ -56,13 +63,13 @@ public class SimulatePlay implements Runnable{
                     int index = 0;
                     do {
                         Event e = eventQueue.get(index);
-                        long rightTime = tune.startTimestamp + new Long(e.eventInfo.get("time").toString());
+                        long rightTime = tune.startTimestamp + new Long(e.getEventInfo().get("time").toString());
                         try {
                             long sleepTime = rightTime - new Date().getTime();
                             if(sleepTime > 0) {
                                 Thread.sleep(sleepTime);
                             }
-                            comeupEvent(e.eventType, e.eventInfo);
+                            comeupEvent(e.getEventType(), e.getEventInfo());
                             index++;
                         } catch (Exception xx) {
                             System.out.print(xx);

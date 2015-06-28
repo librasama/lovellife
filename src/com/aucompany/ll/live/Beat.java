@@ -1,4 +1,4 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live;
 
 /**
  * Created by zoe on 2015/6/26.
@@ -58,5 +58,9 @@ public class Beat {
      */
     public boolean isLastBeat() {
         return BeatType.isLong(type);
+    }
+
+    public long getRightTime() {
+        return rightTime;
     }
 }

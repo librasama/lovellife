@@ -1,9 +1,8 @@
-package com.aucompany.ll;
+package com.aucompany.ll.live;
 
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by zoe on 2015/6/26.
@@ -51,6 +50,10 @@ public class Track {
         //测试技能发动条件
         //如果是，发动技能动画
         //System.out.println("Track loop");
+    }
+
+    public int getPos() {
+        return pos;
     }
 
     /**
