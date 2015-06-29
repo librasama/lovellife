@@ -1,5 +1,6 @@
 package com.aucompany.ll.live.graph;
 
+import com.aucompany.ll.live.Director;
 import com.aucompany.ll.live.Tune;
 
 import java.util.Date;
@@ -8,22 +9,22 @@ import java.util.Date;
  * Created by zoe on 2015/6/28.
  */
 public class TimeBar implements Runnable {
-    Tune tune ;
-    public TimeBar(Tune tune) {
-        this.tune = tune;
+    Director director ;
+    public TimeBar(Director d) {
+        this.director = d;
     }
     @Override
     public void run() {
         do {
             try{
-                if(Math.ceil((new Date().getTime()-tune.startTimestamp)/1000) != tune.currentSecond) {
-                    tune.currentSecond++;
-                    System.out.println("歌曲已播放：" + tune.currentSecond + "秒");
+                if(Math.ceil((new Date().getTime()-director.getStartTimestamp())/1000) != director.currentSecond) {
+                    director.currentSecond++;
+                    System.out.println("歌曲已播放：" + director.currentSecond + "秒");
                 }
                 Thread.sleep(100);
             } catch (Exception e) {
                 System.err.println(e);
             }
-        } while(!tune.isEnd());
+        } while(!director.isEnd());
     }
 }

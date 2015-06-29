@@ -20,8 +20,8 @@ public class TestSuit {
         return  s;
     }
 
-    public static Tune getTune() {
-        t = new Tune();
+    public static Tune getTune(Director d) {
+        t = new Tune(d);
         t.id = 1;
         t.lastTime = tuneLastTime;
         t.animateTime = tuneAnimateTime;
@@ -57,12 +57,6 @@ public class TestSuit {
         return q;
     }
 
-    public PlayerData getPlayerData() {
-        PlayerData p = new PlayerData(1);
-        return p;
-    }
-
-
     public static Card getCard(int id) {
 //        Property property, int maxLevel, int[] coolArr,int[] pureArr,int[] smileArr, int[] powerLevel
         Card c = new Card(Card.Property.Cool, 3, new int[]{300, 200, 100}, new int[]{150, 100, 50},
@@ -79,12 +73,17 @@ public class TestSuit {
         return map;
     }
 
-    public static List<PlayerCard> getCardSet() {
+    public static List<PlayerCard> getCardSet(int playerId, int cardSetid) {
         List<PlayerCard> list = new ArrayList<>();
         PlayerCard c1 = new PlayerCard(1,1);
         PlayerCard c2 = new PlayerCard(1,2);
         list.add(c1);
         list.add(c2);
         return list;
+    }
+
+    public static PlayerData getPlayerData() {
+        PlayerData player = new PlayerData(1,1,Card.Property.Cool,100, 200);
+        return player;
     }
 }

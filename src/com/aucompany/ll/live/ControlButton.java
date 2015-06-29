@@ -41,7 +41,7 @@ public class ControlButton {
     }
     //标记是否发动技能
     public void tagSkill(){
-        boolean enableDrive = DriveSkillType.drive(st, skill) && new Random(1).nextFloat() >= skill.rate;
+        boolean enableDrive = Skill.DriveType.drive(st, skill) && new Random(1).nextFloat() >= skill.rate;
         if(enableDrive) {
             skill.startTime = new Date().getTime();
             onSkill = true;

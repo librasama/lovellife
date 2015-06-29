@@ -11,7 +11,7 @@ import java.util.List;
 public class CardSet {
     int playerId;            //玩家Id
     int cardSetId;           //卡组Id
-    int cardSetName;         //卡组名称
+    String cardSetName;         //卡组名称
     List<PlayerCard> set;   //卡组
     PlayerCard center;      //卡组Center
 
@@ -23,10 +23,11 @@ public class CardSet {
         return center;
     }
 
-    public CardSet(int playerId, int setId, int cardSetName) {
+    public CardSet(int playerId, int setId, String cardSetName) {
         this.playerId = playerId;
         this.cardSetId = setId;
         this.cardSetName = cardSetName;
+        this.set = loadCardSet(playerId, setId);
     }
 
     /**
@@ -34,7 +35,7 @@ public class CardSet {
      * @return
      */
     private List<PlayerCard> loadCardSet(int playerId, int setId) {
-        return TestSuit.getCardSet();
+        return TestSuit.getCardSet(playerId,setId);
     }
 
     public int getPower() {
@@ -51,5 +52,9 @@ public class CardSet {
             point += card.getPoint(property);
         }
         return point;
+    }
+
+    public int getCardNum() {
+        return set.size();
     }
 }

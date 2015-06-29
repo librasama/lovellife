@@ -15,9 +15,9 @@ import java.util.*;
  */
 public class SimulatePlay implements Runnable{
 
-    Tune tune;
+    Director d;
     public SimulatePlay(Director director) {
-        this.tune = director.getTune();
+        this.d = director;
     }
 
     /**
@@ -36,7 +36,7 @@ public class SimulatePlay implements Runnable{
      */
     private void init() {
         System.out.println("++++++++++++++预定事件++++++++++++");
-        for(Track t : this.tune.getTracks()) {
+        for(Track t : d.getTracks()) {
             System.out.println("++++++++++++++音轨"+t.getPos()+"++++++++++++");
             List<Event> eventQueue = new ArrayList<Event>();
             for(Beat b : t.getBeats()) {
@@ -63,7 +63,7 @@ public class SimulatePlay implements Runnable{
                     int index = 0;
                     do {
                         Event e = eventQueue.get(index);
-                        long rightTime = tune.startTimestamp + new Long(e.getEventInfo().get("time").toString());
+                        long rightTime = d.getStartTimestamp() + new Long(e.getEventInfo().get("time").toString());
                         try {
                             long sleepTime = rightTime - new Date().getTime();
                             if(sleepTime > 0) {
@@ -74,7 +74,7 @@ public class SimulatePlay implements Runnable{
                         } catch (Exception xx) {
                             System.out.print(xx);
                         }
-                    } while(index < eventQueue.size() && !tune.isEnd());
+                    } while(index < eventQueue.size() && !d.isEnd());
                 }
             }));
         }

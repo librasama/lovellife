@@ -7,9 +7,9 @@ import java.util.Date;
  * 技能
  */
 public class Skill {
-    DriveSkillType driveType;       //发动类型
+    DriveType driveType;            //发动类型
+    Type skillType;                 //技能类型
     float rate;                     //发动概率
-    SkillType skillType;            //技能类型
     int skillVal;                   //技能数值
     int testCount;                  //已测试次数
     String audio;                   //发动技能声音
@@ -20,4 +20,37 @@ public class Skill {
     public boolean timeout(){
         return (new Date().getTime() - startTime > lastTime);
     }
+
+    /**
+     * 发动技能条件类型
+     */
+    public enum DriveType {
+        Inteval,Perfect, Combo;
+
+        /**
+         * 是否可以发动
+         * @param st
+         * @param sk
+         * @return
+         */
+        public static boolean drive(PlayerStatus st, Skill sk) {
+            switch (sk.driveType) {
+            case Inteval:
+                return st.getPlaytime() >= sk.skillVal;
+                case Perfect:
+                    return st.getComboPerfect() >= sk.skillVal;
+                case Combo:
+                    return st.getCombo() >= sk.skillVal;
+                default:
+                    return true;
+            }
+
+        }
+    }
+
+    public enum Type {
+
+    }
 }
+
+

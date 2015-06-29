@@ -1,5 +1,7 @@
 package com.aucompany.ll.live;
 
+import com.aucompany.ll.player.Card;
+
 /**
  * Created by zoe on 2015/6/26.
  * 选曲
@@ -10,6 +12,7 @@ public class Song {
     String title;           //标题
     String albumCover;      //专辑封面
     String lastTime;        //持续时间
+    Card.Property property; //属性
 
     int SScore ;            //SScore分数线
 

@@ -13,7 +13,8 @@ import java.util.Map;
  */
 public class Stage {
 
-    boolean inited = false;         //是否已经初始化
+    private Director d;                      //导演类
+    private EventHandler eventHandler;      //事件处理
 
     String bgImage;                 //背景图
     String bgCover;                 //背景点缀
@@ -26,22 +27,21 @@ public class Stage {
     Button pauseBtn;                //暂停按钮
     List<ControlButton> ctlBtns;    //玩家按钮
 
-    private Director d;                      //导演类
-    private EventHandler eventHandler;      //事件处理
+    boolean inited = false;         //是否已经初始化
 
     public Stage(Director d) {
         this.d = d;
         this.eventHandler = d.getEventHandler();
-//        init(d.difficulty, d.);
+        init(d.difficulty, d.getSScore(), d.getPower(), d.isRace);
     }
 
     public void init(int level, int maxScore, int initPower, boolean isRace) {
         if(!inited) {
             //初始化各个元素，放置到正确的位置
-            loadBgScene(level);//加载背景场景
-            loadScoreBar(maxScore);//加载分数条
-            loadPowerBar(initPower);//加载体力条
-            loadPlayBtn(isRace);//加载暂停按钮
+            loadBgScene(level);             //加载背景场景
+            loadScoreBar(maxScore);         //加载分数条
+            loadPowerBar(initPower);        //加载体力条
+            loadPlayBtn(isRace);            //加载暂停按钮
             //为元素添加事件监听
             initEventListener();
             inited = true;
