@@ -7,20 +7,22 @@ import java.util.Random;
  * Created by zoe on 2015/6/26.
  *  玩家按钮
  */
-public class PlaySinger {
-    public PlaySinger(Track track, float x, float y) {
+public class ControlButton {
+
+    float x;                //X坐标
+    float y;                //Y坐标
+    float offsetRadius = 10; //点击位置偏差半径
+    Track track;            //音轨
+    Skill skill;            //技能
+    PlayerStatus st;        //玩家状态
+    boolean onSkill;        //是否正在发动技能
+    Beat currBeat;          //当前节奏点
+
+    public ControlButton(Track track, float x, float y) {
         this.track = track;
         this.x = x;
         this.y = y;
     }
-    float x;    //X坐标
-    float y;    //Y坐标
-    float offsetRadius = 10; //点击位置偏差半径
-    Track track; //音轨
-    Skill skill; //技能
-    PlayerStatus st;//玩家状态
-    boolean onSkill; //是否正在发动技能
-    Beat currBeat;//当前节奏点
 
     //触摸
     public void onTouchIn() {

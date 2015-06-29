@@ -1,5 +1,7 @@
 package com.aucompany.ll.test;
 
+import com.aucompany.ll.player.Card;
+import com.aucompany.ll.player.PlayerCard;
 import com.aucompany.ll.live.*;
 
 import java.util.*;
@@ -36,9 +38,9 @@ public class TestSuit {
 
     private static Track getTrack(int pos, float x, float y) {
         Track t2 = new Track(pos);
-        PlaySinger singer2 = new PlaySinger(t2, x, y);
+        ControlButton singer2 = new ControlButton(t2, x, y);
         t2.playBtn = singer2 ;
-        System.out.println("++++++++++++++设定Track"+pos+"节奏++++++++++++");
+        System.out.println("++++++++++++++设定Track" + pos + "节奏++++++++++++");
         t2.setBeats(getBeats());
         System.out.println();
         return t2;
@@ -56,7 +58,33 @@ public class TestSuit {
     }
 
     public PlayerData getPlayerData() {
-        PlayerData p = new PlayerData();
+        PlayerData p = new PlayerData(1);
         return p;
+    }
+
+
+    public static Card getCard(int id) {
+//        Property property, int maxLevel, int[] coolArr,int[] pureArr,int[] smileArr, int[] powerLevel
+        Card c = new Card(Card.Property.Cool, 3, new int[]{300, 200, 100}, new int[]{150, 100, 50},
+                new int[]{150, 100, 50}, new int[]{1,2});
+        Skill s = new Skill();
+        c.setSkill(s);
+        return c;
+    }
+
+    public static Map<String, Integer> getPlayerCard(int id) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("kizuno", 30);
+        map.put("cardid", 1);//模板id
+        return map;
+    }
+
+    public static List<PlayerCard> getCardSet() {
+        List<PlayerCard> list = new ArrayList<>();
+        PlayerCard c1 = new PlayerCard(1,1);
+        PlayerCard c2 = new PlayerCard(1,2);
+        list.add(c1);
+        list.add(c2);
+        return list;
     }
 }

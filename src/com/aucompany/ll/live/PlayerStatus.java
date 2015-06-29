@@ -5,6 +5,7 @@ package com.aucompany.ll.live;
  * 玩家状态
  */
 public class PlayerStatus {
+
     public PlayerStatus(int initPower) {
         this.initPower = initPower;
         this.power = initPower;
@@ -17,11 +18,11 @@ public class PlayerStatus {
     int good;
     int great;
     int perfect;
-    int score;           //分数统计
+    int score;          //分数统计
     int combo;          //连击统计
     int initPower;      //初始体力
-    int power;
-    int maxPerfect;
+    int power;          //现存体力
+    int comboPerfect;   //连击Perfect
     int maxCombo;       //最大连击
 
     @Override
@@ -37,7 +38,7 @@ public class PlayerStatus {
                 ", combo=" + combo +
                 ", power=" + power +
                 ", initPower=" + initPower +
-                ", maxPerfect=" + maxPerfect +
+                ", comboPerfect=" + comboPerfect +
                 ", maxCombo=" + maxCombo +
                 '}';
     }

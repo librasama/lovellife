@@ -8,5 +8,5 @@ import java.util.Map;
  */
 public interface IEventCallback {
 
-    public void handleEvent(Map<String, Object> eventInfo);
+    public void handleEvent(String eventType, Map<String, Object> eventInfo);
 }

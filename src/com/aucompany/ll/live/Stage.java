@@ -1,16 +1,9 @@
 package com.aucompany.ll.live;
 
-import com.aucompany.ll.live.event.Event;
-import com.aucompany.ll.live.event.EventQueue;
+import com.aucompany.ll.live.event.EventHandler;
 import com.aucompany.ll.live.event.IEventCallback;
-import com.aucompany.ll.live.graph.Button;
-import com.aucompany.ll.live.graph.Label;
-import com.aucompany.ll.live.graph.ProgressBar;
-import com.aucompany.ll.live.graph.ScoreBar;
+import com.aucompany.ll.live.graph.*;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,104 +11,137 @@ import java.util.Map;
  * Created by zoe on 2015/6/28.
  * 舞台
  */
-public class Stage implements Runnable {
-    String bgImage; //背景图
-    String bgCover; //背景点缀
-    ProgressBar powerbar; //体力条
-    ProgressBar scorebar;
-    ProgressBar sc;
-    Label scoreTip;
-    Label comboTip;
-    Label mNote;
-    Button pause;
+public class Stage {
 
-    private Director d;
+    boolean inited = false;         //是否已经初始化
+
+    String bgImage;                 //背景图
+    String bgCover;                 //背景点缀
+    PowerBar powerbar;              //体力条
+    ScoreBar scorebar;              //分数条
+    TimeBar timebar;                //时间条
+    Label hitTip;                   //打击结果提示（Great、Perfect等）
+    Label comboTip;                 //连击结果提示（5 Combo）
+    Label mNote;                    //乐符提示（变红警告）
+    Button pauseBtn;                //暂停按钮
+    List<ControlButton> ctlBtns;    //玩家按钮
+
+    private Director d;                      //导演类
+    private EventHandler eventHandler;      //事件处理
 
     public Stage(Director d) {
         this.d = d;
+        this.eventHandler = d.getEventHandler();
+//        init(d.difficulty, d.);
     }
-    public void initStage() {
-        //初始化各个元素，放置到正确的位置
-        //为元素添加事件监听
-        initEventListener();
+
+    public void init(int level, int maxScore, int initPower, boolean isRace) {
+        if(!inited) {
+            //初始化各个元素，放置到正确的位置
+            loadBgScene(level);//加载背景场景
+            loadScoreBar(maxScore);//加载分数条
+            loadPowerBar(initPower);//加载体力条
+            loadPlayBtn(isRace);//加载暂停按钮
+            //为元素添加事件监听
+            initEventListener();
+            inited = true;
+        }
     }
 
     private void initEventListener() {
-        addEventCallback("Score", new IEventCallback() {
+        eventHandler.addEventCallback("TouchIn", new TouchInHandler());
+        eventHandler.addEventCallback("TouchOut", new TouchOutHandler());
+        eventHandler.addEventCallback("Pause", new PauseHandler());
+        eventHandler.addEventCallback("Score", scorebar);
+        eventHandler.addEventCallback("Hit", hitTip);
+        eventHandler.addEventCallback("Power", powerbar);
+        eventHandler.addEventCallback("Combo", comboTip);
+        eventHandler.addEventCallback("Combo", new IEventCallback() {
             @Override
-            public void handleEvent(Map<String, Object> eventInfo) {
-                System.out.print("sb");
+            public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+                //满多少换背景
             }
         });
+        eventHandler.addEventCallback("Power", new IEventCallback() {
+            @Override
+            public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+                //体力低于多少时，MusicNote变红
+            }
+        });
+
+    }
+    public void loadPlayBtn(boolean isRace) {
+        if(isRace) {
+            //disable掉暂停按钮
+        }
+        System.out.println("loading Play button...");
+    }
+    private void loadBgScene(int level) {
+        System.out.println("loading Background Scene...");
     }
 
+    private void loadScoreBar(int maxScore) {
+        System.out.println("loadingScoreBar...");
+    }
+    private void loadPowerBar(int power) {
+        System.out.println("loading Powerbar...");
+    }
 
-    @Override
-    public void run() {
-        while(d.onScreenListener) {
-            //消费事件
-            Event e = EventQueue.getInstance().deQueue();
-            if(e != null && listenerMap.containsKey(e.getEventType())) {
-                for(Map<String, Object> invokeTarget: listenerMap.get(e.getEventType())) {
-                    if(invokeTarget.containsKey("callback")) {
-                        IEventCallback cb = (IEventCallback)invokeTarget.get("callback");
-                        if(cb != null) cb.handleEvent(e.getEventInfo());
-                    } else {
-                        Object targetObject = invokeTarget.get("target");
-                        Class clz = (Class)invokeTarget.get("class");
-                        String method = (String)invokeTarget.get("method");
-                        try {
-                            Method m = clz.getMethod(method, Map.class);
-                            m.invoke(targetObject, e.getEventInfo());
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-
-                }
+    /**
+     * 屏幕点击事件
+     * param time
+     * param x
+     * param y
+     */
+    private class TouchInHandler implements IEventCallback {
+        public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+            long time = new Long(String.valueOf(eventInfo.get("time")));
+            //获取点击到的音轨
+            Track track = getTrack(new Float(eventInfo.get("x").toString()), new Float(eventInfo.get("y").toString()));
+            if(track.curBeat != null && track.curBeat.peek() != null) {
+                //判断当前，是否在最前一个beat的范围守备内
+                track.curBeat.peek().tryHit(time);
             }
         }
     }
 
-    private Map<String, List<Map>> listenerMap = new HashMap<String, List<Map>>();
+    private class TouchOutHandler implements IEventCallback {
+        public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+
+        }
+    }
+    /**
+     * 暂停/播放事件处理
+     */
+    private class PauseHandler implements IEventCallback {
+        public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+            d.onPause();
+            if(d.getIsPlay()) {
+                //按钮更换为play
+                //音乐暂停
+                //动画暂停
+            } else {
+                //恢复音乐
+                //恢复动画
+                //按钮更换为pause
+            }
+        }
+
+    }
 
     /**
-     * 增加消息监听，反射方式
-     * @param eventType
-     * @param listener
-     * @param clz
-     * @param methodName
+     * 坐标获取最靠近的音轨
+     * @param x
+     * @param y
+     * @return
      */
-    public void addEventListener(String eventType, Object listener, Class clz, String methodName) {
-        if(!listenerMap.containsKey(eventType)) {
-            List<Map> list = new ArrayList<>();
-            listenerMap.put(eventType, list);
+    private Track getTrack(float x, float y) {
+        for(Track t : d.getTracks()) {
+            if(t.inScope(x, y)) {
+                return t;
+            }
         }
-        List<Map> list = listenerMap.get(eventType);
-        Map<String, Object> listenerInfo = new HashMap<String, Object>();
-        listenerInfo.put("target", listener);
-        listenerInfo.put("class", clz);
-        listenerInfo.put("method", methodName);
-        list.add(listenerInfo);
+        return null;
     }
 
-    /**
-     * 消息监听，回调方式
-     * @param eventType
-     * @param callback
-     */
-    public void addEventCallback(String eventType, IEventCallback callback) {
-        if(!listenerMap.containsKey(eventType)) {
-            List<Map> list = new ArrayList<>();
-            listenerMap.put(eventType, list);
-        }
-        List<Map> list = listenerMap.get(eventType);
-        Map<String, Object> listenerInfo = new HashMap<String, Object>();
-        listenerInfo.put("callback", callback);
-        list.add(listenerInfo);
-    }
-
-    public void removeEventListner(String eventType, Object listener, String methodName) {
-
-    }
 }

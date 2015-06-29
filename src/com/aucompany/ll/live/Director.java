@@ -1,10 +1,11 @@
 package com.aucompany.ll.live;
 
-import com.aucompany.ll.live.graph.ProgressBar;
+import com.aucompany.ll.live.event.EventHandler;
 import com.aucompany.ll.test.SimulatePlay;
 import com.aucompany.ll.test.TestSuit;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,16 +14,21 @@ import java.util.Map;
  */
 public class Director {
 
-    int level;                      //难度
-    int id;                         //曲子id
-    boolean isPlay = false;         //正在播放
-    boolean isRace = false;         //是否是竞赛
-    long pauseTimestamp;            //暂停时间戳
-    PlayerData player;
-    Song song;
-    Tune tune;
-    boolean onScreenListener = true;            //监听屏幕输入
-    EventCenter handler = new EventCenter();  //事件响应
+    int difficulty;                         //难度
+    int id;                                 //曲子id
+    boolean isRace = false;                 //是否是竞赛模式（不允许暂停）
+    Song song;                              //乐曲信息
+    boolean isReady4Input = true;           //监听屏幕输入
+    Tune tune;                              //乐谱信息
+    Stage stage;                            //舞台信息
+    PlayerData player;                      //玩家信息
+    PlayerStatus status;                    //玩家状态值
+    EventHandler eventHandler;              //事件响应
+    GameEvalue gameEvalue;                  //游戏结果评级
+
+    boolean isPlay = false;                 //正在播放
+    long pauseTimestamp;                    //暂停时间戳
+
     public Director(int songId) {
         this.id = songId;
     }
@@ -33,21 +39,15 @@ public class Director {
     public void init(){
         player = loadPlayerData();//加载玩家数据
         song = loadSong(id);//乐曲基本信息
-        loadBgScene(level);//加载背景场景
-        loadScoreBar(song);//加载分数条
-        loadPowerBar(player);//加载体力条
-        loadPlayBtn(isRace);//加载暂停按钮
+        this.eventHandler = new EventHandler(this);
+        stage = new Stage(this);
     }
 
     /**
      * 模拟界面
      */
     private void simulate() {
-        Stage screen = new Stage(this);
-        screen.addEventListener("TouchIn", handler, EventCenter.class, "onScreenTouchIn");
-        screen.addEventListener("TouchOut", handler, EventCenter.class, "onScreenTouchIn");
-        new Thread(new SimulatePlay(this)).start();
-        new Thread(screen).start();
+
     }
 
     /**
@@ -55,24 +55,21 @@ public class Director {
      */
     public void play() {
         showSongInfo(song);//显示乐曲基本信息
-        loadMask(); //加载过场--蒙版
+        loadMask();         //加载过场--蒙版
         tune = loadTune(id);//加载歌曲
         tune.playerData = player;
         tune.startTimestamp = new Date().getTime();
         tune.initTuneAndTracks(id);
-        cancleMask(); //撤销蒙版
+        cancleMask();       //撤销蒙版
         Thread song = new Thread(tune);//播放歌曲
-        Thread progressBar = new Thread(new ProgressBar(tune));
         song.start();
-        progressBar.start();
-        simulate();
+        new Thread(new SimulatePlay(this)).start();
         try {
             song.join();
-            progressBar.join();
         } catch (Exception e) {
             System.out.println(e);
         }
-        onScreenListener = false;
+        isReady4Input = false;
         System.out.println("父进程呵呵呵");
         //演奏成功失败蒙版
         PlayerStatus status = tune.playerStatus;
@@ -87,23 +84,42 @@ public class Director {
 
     }
 
+    /**
+     * 暂停
+     */
+    public void onPause() {
+        if(isPlay) {
+            pauseTimestamp = new Date().getTime();
+        } else {
+            tune.startTimestamp += new Date().getTime() - pauseTimestamp;
+        }
+    }
 
-    //来一款测试用的
-    public Tune loadTune(int id) {
+    public boolean getIsPlay() {
+        return isPlay;
+    }
+
+    /**
+     * TODO 加载乐曲
+     */
+    protected Tune loadTune(int id) {
         return TestSuit.getTune();
     }
-
-    public Tune getTune() {
-        return tune;
-    }
+    /**
+     * TODO 加载基本信息
+     */
 
     protected Song loadSong(int id) {
         System.out.println("加载歌曲信息： " + id + "...");
         return new Song();
     }
+    /**
+     * TODO 加载玩家信息
+     */
+
     protected PlayerData loadPlayerData() {
         PlayerData player = new PlayerData();
-        System.out.println("loading Player Data...");
+        System.out.println("加载玩家信息：...");
         player.hitScore = 300;
         return player;
     }
@@ -111,17 +127,13 @@ public class Director {
     protected void showSongInfo(Song song) {
 
     }
-
-    private void loadBgScene(int level) {
-        System.out.println("loading Background Scene...");
+    public Tune getTune() {
+        return tune;
+    }
+    public List<Track> getTracks() {
+        return tune.getTracks();
     }
 
-    private void loadScoreBar(Song song) {
-        System.out.println("loadingScoreBar...");
-    }
-    private void loadPowerBar(PlayerData player) {
-        System.out.println("loading Powerbar...");
-    }
 
     private void loadMask() {
         System.out.println("lloadMask...");
@@ -129,72 +141,15 @@ public class Director {
     private void cancleMask(){
         System.out.println("cancleMask...");
     }
-    public void loadPlayBtn(boolean isRace) {
-        if(isRace) {
-            //disable掉暂停按钮
-        }
-        System.out.println("loading Play button...");
+
+
+    public boolean getIsReady4Input() {
+        return isReady4Input;
     }
 
-    /**
-     * 事件处理中心
-     */
-    class EventCenter {
-        /**
-         * 屏幕点击事件
-         * param time
-         * param x
-         * param y
-         */
-        public void onScreenTouchIn(Map<String, Object> e) {
-            long time = new Long(String.valueOf(e.get("time")));
-            //获取点击到的音轨
-            Track track = getTrack(new Float(e.get("x").toString()), new Float(e.get("y").toString()));
-            if(track.curBeat != null && track.curBeat.peek() != null) {
-                //判断当前，是否在最前一个beat的范围守备内
-                track.curBeat.peek().tryHit(time);
-            }
-        }
-
-        /**
-         * 屏幕点击离开事件
-         */
-        public void onScreenTouchOut(Map<String, Object> e) {
-
-        }
-
-        /**
-         * 暂停按钮
-         */
-        public void onPauseBtnClick() {
-            if(isPlay) {
-                pauseTimestamp = new Date().getTime();
-                //按钮更换为play
-                //音乐暂停
-                //动画暂停
-            } else {
-                //恢复音乐
-                //恢复动画
-                //按钮更换为pause
-                tune.startTimestamp += new Date().getTime() - pauseTimestamp;
-            }
-        }
-
-        /**
-         * 坐标获取最靠近的音轨
-         * @param x
-         * @param y
-         * @return
-         */
-        private Track getTrack(float x, float y) {
-            for(Track t : tune.tracks) {
-                if(t.playBtn.inScope(x, y)) {
-                    return t;
-                }
-            }
-            return null;
-        }
-
+    public EventHandler getEventHandler() {
+        return eventHandler;
     }
+
 }
 

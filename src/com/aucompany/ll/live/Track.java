@@ -11,7 +11,7 @@ import java.util.Queue;
 public class Track {
     Queue<Beat> beats;              //节奏队列
     Queue<Beat> curBeat = new LinkedList<>(); //当前屏幕上的节奏
-    public PlaySinger playBtn;      //玩家按钮
+    public ControlButton playBtn;      //玩家按钮
     long animateTime;               //动画播放的时间
     long delayTime;                 //最大延迟时间
     int pos;                        //第几条音轨
@@ -54,6 +54,10 @@ public class Track {
 
     public int getPos() {
         return pos;
+    }
+
+    public boolean inScope(float x, float y) {
+        return playBtn.inScope(x, y);
     }
 
     /**
