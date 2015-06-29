@@ -7,17 +7,17 @@ import java.util.Queue;
  * Created by zoe on 2015/6/27.
  * 消息队列
  */
-public class EventQueue {
+public class EventBus {
 
-    private static EventQueue instance;
+    private static EventBus instance;
     private Queue<Event>  eQueue;
 
-    private EventQueue() {
+    private EventBus() {
         eQueue = new ArrayDeque<>();
     }
-    public static EventQueue getInstance() {
+    public static EventBus getInstance() {
         if(instance == null)
-            instance = new EventQueue();
+            instance = new EventBus();
         return instance;
     }
 
@@ -26,7 +26,9 @@ public class EventQueue {
      * @param e
      */
     public synchronized void add(Event e) {
-        System.out.println("【事件中心】事件发生："+e.eventType + "；相关数据："+e.eventInfo.toString());
+        String msg = "";
+        if(e.eventInfo != null) msg =  e.eventInfo.toString();
+        System.out.println("【事件中心】事件发生："+e.eventType + "；相关数据：" + msg);
         eQueue.add(e);
     }
 

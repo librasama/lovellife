@@ -25,7 +25,7 @@ public class EventHandler implements Runnable {
     public void run() {
         while(d.getIsReady4Input()) {
             //消费事件
-            Event e = EventQueue.getInstance().deQueue();
+            Event e = EventBus.getInstance().deQueue();
             if(e != null && listenerMap.containsKey(e.getEventType())) {
                 for(Map<String, Object> invokeTarget: listenerMap.get(e.getEventType())) {
                     if(invokeTarget.containsKey("callback")) {

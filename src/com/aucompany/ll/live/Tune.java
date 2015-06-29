@@ -1,9 +1,14 @@
 package com.aucompany.ll.live;
 
+import com.aucompany.ll.live.event.Event;
+import com.aucompany.ll.live.event.EventBus;
+import com.aucompany.ll.live.event.IEventCallback;
+import com.aucompany.ll.player.PlayerCard;
 import com.aucompany.ll.test.TestSuit;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zoe on 2015/6/26.
@@ -24,6 +29,7 @@ public class Tune implements Runnable {
     long perfectOffset = 100;
 
     List<Track> tracks;                 //音轨们
+    List<PlayerCard> cards;             //卡牌们
 
     public Tune(Director director) {
         this.d = director;
@@ -32,36 +38,41 @@ public class Tune implements Runnable {
 
     public int initTuneAndTracks(int id) {
         tracks = findTracks(id);
+        cards = d.player.getPlayerCards();
+        int i = 0;
         for(Track t : tracks) {
+            t.setPlayCard(cards.get(i));
             t.animateTime = animateTime;
             t.delayTime = badOffset;
             for(Beat b : t.getBeats()) {
                 hits++;
             }
+            i++;
         }
         return hits;
     }
+
     public void run() {
-        playMusic();
+        EventBus.getInstance().add(new Event("Start", null));
         d.startTimestamp = new Date().getTime();
         do {
             try{Thread.sleep(judgeInterval);} catch (Exception e) {System.err.println(e);}
             for(Track track : tracks) {
-                track.doTrackWork(d.getStartTimestamp());
+                track.doTrackWork(d.status, d.getStartTimestamp());
                 Beat b = track.curBeat.peek();
                 if(b != null && (b.hitlevel != HitLevel.None)) {
-                    System.out.print("！！！判定！！！" );
+                    System.out.print("！！！判定！！！");
                     // 结束滑行动画
-                    removeBeatCircle();
+                    track.removeBeatCircle(b);
                     evalue.evaluateHit(b);
-                    // 播放结果动画
-                    hitResultAnimate();
                     //释放乐符
                     track.curBeat.poll();
                 }
             }
             //联合评价
             evalue.evalueRound();
+            // 播放结果动画
+            hitResultAnimate();
             //乐曲结束或者体力为0
         } while(!d.isEnd());
         System.out.println("音乐结束");

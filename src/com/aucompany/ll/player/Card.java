@@ -44,9 +44,9 @@ public class Card {
 
     public static int getPoint(Card c,Property p, int level) {
         switch (p) {
-            case Cool: return c.coolPoint[level];
-            case Pure: return c.purePoint[level];
-            case Smile: return c.smilePoint[level];
+            case Cool: return c.coolPoint[level-1];
+            case Pure: return c.purePoint[level-1];
+            case Smile: return c.smilePoint[level-1];
         }
         return 0;
     }

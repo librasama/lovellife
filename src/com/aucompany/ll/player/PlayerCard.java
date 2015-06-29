@@ -1,5 +1,6 @@
 package com.aucompany.ll.player;
 
+import com.aucompany.ll.live.Skill;
 import com.aucompany.ll.test.TestSuit;
 
 import java.util.Map;
@@ -36,6 +37,10 @@ public class PlayerCard {
         if(type == Card.Property.Pure) return this.purePoint;
         if(type == Card.Property.Smile) return this.smilePoint;
         return 0;
+    }
+
+    public Skill getCardSkill() {
+        return card.getSkill();
     }
 
     /**

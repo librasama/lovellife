@@ -1,5 +1,7 @@
 package com.aucompany.ll.live;
 
+import com.aucompany.ll.player.PlayerCard;
+
 import java.util.Date;
 import java.util.Random;
 
@@ -9,45 +11,51 @@ import java.util.Random;
  */
 public class ControlButton {
 
-    float x;                //X坐标
-    float y;                //Y坐标
-    float offsetRadius = 10; //点击位置偏差半径
-    Track track;            //音轨
-    Skill skill;            //技能
-    PlayerStatus st;        //玩家状态
-    boolean onSkill;        //是否正在发动技能
-    Beat currBeat;          //当前节奏点
+    float x;                     //X坐标
+    float y;                     //Y坐标
+    float offsetRadius = 10;     //点击位置偏差半径
+    PlayerCard card;             //卡牌
+    Skill skill;                 //技能
+    boolean onSkill;             //是否正在发动技能
 
-    public ControlButton(Track track, float x, float y) {
-        this.track = track;
+    public ControlButton(PlayerCard card, float x, float y) {
+        this.card = card;
+        this.skill = card.getCardSkill();
         this.x = x;
         this.y = y;
     }
 
-    //触摸
-    public void onTouchIn() {
-        //更新血量条
-        //更新体力条
-    }
-
-    //轮询更新状态
-    public void updateStatus() {
-        tagSkill();
-    }
-
-    public void detechBeat() {
-        Beat beat = track.beats.peek();
-        currBeat = beat;
-    }
-    //标记是否发动技能
-    public void tagSkill(){
-        boolean enableDrive = Skill.DriveType.drive(st, skill) && new Random(1).nextFloat() >= skill.rate;
-        if(enableDrive) {
+    /**
+     * 发动/结束技能
+     */
+    public void checkSkill(PlayerStatus st){
+        boolean enableDrive = Skill.DriveType.enableDrive(st, skill) && new Random(1).nextFloat() < skill.rate;
+        if(enableDrive && !onSkill) {
+            System.out.println("技能已触发，等待猛击中");
             skill.startTime = new Date().getTime();
             onSkill = true;
-        } else if(onSkill && skill.timeout()) {
-            onSkill = false;
+            startSkillAnime();
         }
+        if(onSkill && skill.timeout()) {
+            endSkillAnime();
+        }
+
+    }
+
+    /**
+     * 开始技能动画
+     */
+    public void startSkillAnime() {
+        //播放声音 skill.audio;
+        //换背景 skill.image;
+    }
+
+    /**
+     * 结束技能动画
+     */
+    public void endSkillAnime() {
+        System.out.println("技能结束");
+        onSkill = false;
     }
 
     /**

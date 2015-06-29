@@ -33,6 +33,8 @@ public class ScoreBar extends ProgressBar implements IEventCallback {
                 i++;
             }
         }
+        System.out.println("更新Scorebar百分比："+percent);
         setColors(colors[i]);
+        System.out.println("更新Scorebar颜色：" + colors[i]);
     }
 }

@@ -40,8 +40,8 @@ public class Director {
      * 初始化
      */
     public void init(){
-        player = loadPlayerData();          //加载玩家数据
-        song = loadSong(id);                //乐曲基本信息
+        player = loadPlayerData();                  //加载玩家数据
+        song = loadSong(id);                        //乐曲基本信息
         this.eventHandler = new EventHandler(this); //事件分发中心
         stage = new Stage(this);                    //舞台
         tune = new Tune(this);                      //乐谱
@@ -52,11 +52,11 @@ public class Director {
      * 播放
      */
     public void play() {
-        showSongInfo(song);             //显示乐曲基本信息
-        loadMask();                     //加载过场--蒙版
-        tune = loadTune(id);            //加载歌曲
+        showSongInfo(song);                     //显示乐曲基本信息
+        loadMask();                             //加载过场--蒙版
+        tune = loadTune(id);                    //加载歌曲
         hits = tune.initTuneAndTracks(id);
-        cancleMask();                   //撤销蒙版
+        cancleMask();                           //撤销蒙版
         Thread event = new Thread(eventHandler);
         Thread tt = new Thread(tune); //播放歌曲
         Thread play = new Thread(new SimulatePlay(this));   //模拟输入
@@ -151,6 +151,15 @@ public class Director {
     protected void showSongInfo(Song song) {
 
     }
+
+    public void playEffectAudio(String audio) {
+        System.out.println("播放效果音乐文件："+audio);
+    }
+
+    public void showFigureImage(String image) {
+        System.out.println("显示人物立绘："+image);
+    }
+
 
     public int getSScore() {
         return song.getSScore();

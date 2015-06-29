@@ -3,9 +3,8 @@ package com.aucompany.ll.test;
 import com.aucompany.ll.live.Beat;
 import com.aucompany.ll.live.Director;
 import com.aucompany.ll.live.Track;
-import com.aucompany.ll.live.Tune;
 import com.aucompany.ll.live.event.Event;
-import com.aucompany.ll.live.event.EventQueue;
+import com.aucompany.ll.live.event.EventBus;
 
 import java.util.*;
 
@@ -25,8 +24,8 @@ public class SimulatePlay implements Runnable{
      * @param eventType
      * @param eventInfo
      */
-    public void comeupEvent(String eventType, Map<String, Object> eventInfo) {
-        EventQueue.getInstance().add(new Event(eventType, eventInfo));
+    public static void comeupEvent(String eventType, Map<String, Object> eventInfo) {
+        EventBus.getInstance().add(new Event(eventType, eventInfo));
     }
 
     private List<List<Event>> eventQueueList = new ArrayList<List<Event>>();
@@ -41,9 +40,9 @@ public class SimulatePlay implements Runnable{
             List<Event> eventQueue = new ArrayList<Event>();
             for(Beat b : t.getBeats()) {
                 Map<String, Object> map = new HashMap<>();
-                map.put("time", b.getRightTime()+new Random().nextInt(600));
-                map.put("x", t.playBtn.getX());
-                map.put("y", t.playBtn.getY());
+                map.put("time", b.getRightTime()+new Random().nextInt(200));
+                map.put("x", t.controlBtn.getX());
+                map.put("y", t.controlBtn.getY());
                 eventQueue.add(new Event("TouchIn", map));
                 System.out.print(map.get("time") + ",   ");
             }

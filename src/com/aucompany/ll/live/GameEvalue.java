@@ -1,5 +1,9 @@
 package com.aucompany.ll.live;
 
+import com.aucompany.ll.live.event.IEventCallback;
+
+import java.util.Map;
+
 /**
  * Created by zoe on 2015/6/28.
  * 游戏结果评级
@@ -10,11 +14,54 @@ public class GameEvalue {
     PlayerStatus status;                    //玩家状态
     Tune tune;                              //乐谱信息
 
+    long badOffset;
+    long goodOffset;
+    long greatOffset;
+    long perfectOffset;
+
     public GameEvalue(Director director){
         this.tune = director.tune;
         this.status = director.status;
         this.playerData = director.player;
+
+        this.badOffset = tune.badOffset;
+        this.goodOffset = tune.goodOffset;
+        this.greatOffset = tune.greatOffset;
+        this.perfectOffset = tune.perfectOffset;
+        initEventListener();
     }
+    private void initEventListener() {
+        tune.d.eventHandler.addEventCallback("SkillScore", new IEventCallback() {
+            @Override
+            public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+                int value = (Integer)eventInfo.get("val");
+                status.score += value;
+            }
+        });
+    }
+    /**
+     * 判定节奏
+     * @param beat
+     * @param hitTime
+     */
+    public HitLevel judgeBeat(Beat beat, long hitTime) {
+        HitLevel hitlevel = HitLevel.None;
+        long rightTime = beat.getRightTime();
+        long relOffset = hitTime-rightTime;
+        System.out.println("打击时间的偏差值："+relOffset);
+        if(relOffset <= perfectOffset && relOffset >= 0-perfectOffset) {
+            hitlevel = HitLevel.Perfect;
+        } else if (relOffset <= greatOffset && relOffset >= 0-greatOffset) {
+            hitlevel = HitLevel.Great;
+        } else if (relOffset <= goodOffset && relOffset >= 0-goodOffset) {
+            hitlevel = HitLevel.Good;
+        } else if (relOffset <= badOffset && relOffset >= 0-badOffset) {
+            hitlevel = HitLevel.Bad;
+        }
+        beat.hitlevel = hitlevel;
+        return hitlevel;
+    }
+
 
     /**
      * 评估节奏
@@ -42,12 +89,16 @@ public class GameEvalue {
         if(beat.hitlevel == HitLevel.Perfect) {
             status.perfect++;
         }
+        if(beat.hitlevel == HitLevel.Great || beat.hitlevel == HitLevel.Perfect) {
+            status.combo++;
+            status.maxCombo = Math.max(status.maxCombo, status.combo);
+        }
 
         //给Stage发送事件！！更新界面
     }
 
     /**
-     * 每轮评级
+     * 每轮评级（联合评价/修正结果）
      */
     public void evalueRound() {
 

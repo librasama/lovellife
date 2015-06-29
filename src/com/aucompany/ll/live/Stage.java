@@ -42,6 +42,7 @@ public class Stage {
             loadScoreBar(maxScore);         //加载分数条
             loadPowerBar(initPower);        //加载体力条
             loadPlayBtn(isRace);            //加载暂停按钮
+            timebar = new TimeBar((this.d));
             //为元素添加事件监听
             initEventListener();
             inited = true;
@@ -49,6 +50,12 @@ public class Stage {
     }
 
     private void initEventListener() {
+        eventHandler.addEventCallback("Start", new IEventCallback() {
+            @Override
+            public void handleEvent(String eventType, Map<String, Object> eventInfo) {
+                new Thread(timebar).start();
+            }
+        });
         eventHandler.addEventCallback("TouchIn", new TouchInHandler());
         eventHandler.addEventCallback("TouchOut", new TouchOutHandler());
         eventHandler.addEventCallback("Pause", new PauseHandler());
@@ -81,9 +88,11 @@ public class Stage {
     }
 
     private void loadScoreBar(int maxScore) {
+        scorebar = new ScoreBar(maxScore, "分数条");
         System.out.println("loadingScoreBar...");
     }
     private void loadPowerBar(int power) {
+
         System.out.println("loading Powerbar...");
     }
 
@@ -98,10 +107,13 @@ public class Stage {
             long time = new Long(String.valueOf(eventInfo.get("time")));
             //获取点击到的音轨
             Track track = getTrack(new Float(eventInfo.get("x").toString()), new Float(eventInfo.get("y").toString()));
+            //发动技能
+            track.tryDriveSkill();
             if(track.curBeat != null && track.curBeat.peek() != null) {
-                //判断当前，是否在最前一个beat的范围守备内
-                track.curBeat.peek().tryHit(time);
+                //判断当前Beat打击结果
+                d.gameEvalue.judgeBeat(track.curBeat.peek(), time);
             }
+
         }
     }
 

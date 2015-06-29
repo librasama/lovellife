@@ -37,9 +37,7 @@ public class TestSuit {
     }
 
     private static Track getTrack(int pos, float x, float y) {
-        Track t2 = new Track(pos);
-        ControlButton singer2 = new ControlButton(t2, x, y);
-        t2.playBtn = singer2 ;
+        Track t2 = new Track(pos, x, y);
         System.out.println("++++++++++++++设定Track" + pos + "节奏++++++++++++");
         t2.setBeats(getBeats());
         System.out.println();
@@ -57,13 +55,34 @@ public class TestSuit {
         return q;
     }
 
+    /**
+     * 获取卡牌模板
+     * @param id
+     * @return
+     */
     public static Card getCard(int id) {
-//        Property property, int maxLevel, int[] coolArr,int[] pureArr,int[] smileArr, int[] powerLevel
         Card c = new Card(Card.Property.Cool, 3, new int[]{300, 200, 100}, new int[]{150, 100, 50},
                 new int[]{150, 100, 50}, new int[]{1,2});
-        Skill s = new Skill();
+        //Combo为2，技能分数加10000点
+        Skill s = new Skill(Skill.DriveType.Combo, 0.9, 2, Skill.Type.Score, 10000, "Woo~", "www");
         c.setSkill(s);
         return c;
+    }
+
+    public static List<PlayerCard> getCardSet(int playerId, int cardSetid) {
+        List<PlayerCard> list = new ArrayList<>();
+        PlayerCard c1 = new PlayerCard(1,1);
+        PlayerCard c2 = new PlayerCard(1,2);
+        PlayerCard c3 = new PlayerCard(1,3);
+        list.add(c1);
+        list.add(c2);
+        list.add(c3);
+        return list;
+    }
+
+    public static PlayerData getPlayerData() {
+        PlayerData player = new PlayerData(1,1,Card.Property.Cool,100, 200);
+        return player;
     }
 
     public static Map<String, Integer> getPlayerCard(int id) {
@@ -73,17 +92,4 @@ public class TestSuit {
         return map;
     }
 
-    public static List<PlayerCard> getCardSet(int playerId, int cardSetid) {
-        List<PlayerCard> list = new ArrayList<>();
-        PlayerCard c1 = new PlayerCard(1,1);
-        PlayerCard c2 = new PlayerCard(1,2);
-        list.add(c1);
-        list.add(c2);
-        return list;
-    }
-
-    public static PlayerData getPlayerData() {
-        PlayerData player = new PlayerData(1,1,Card.Property.Cool,100, 200);
-        return player;
-    }
 }
